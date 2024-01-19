@@ -1,0 +1,62 @@
+# Simplism
+services:
+  openvscode:
+    container_name: openvscode
+    environment:
+      - ABOUT="@k33g"
+    build:
+      args:
+        - NODE_DISTRO=${NODE_DISTRO}
+        - NODE_VERSION=${NODE_VERSION} 
+        - GO_ARCH=${GO_ARCH}
+        - GO_VERSION=${GO_VERSION}
+        - TINYGO_ARCH=${TINYGO_ARCH}
+        - TINYGO_VERSION=${TINYGO_VERSION}
+      context: ./.docker
+      dockerfile: Dockerfile
+    volumes:
+      - ./workspace:/home/workspace:cached
+      # important for doing docker in docker
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+    ports:
+      - 3000:3000
+
+  openvscode-tasks:
+    container_name: openvscode-tasks
+    #image: gitpod/openvscode-server:1.85.1
+    build:
+      args:
+        - NODE_DISTRO=${NODE_DISTRO}
+        - NODE_VERSION=${NODE_VERSION} 
+        - GO_ARCH=${GO_ARCH}
+        - GO_VERSION=${GO_VERSION}
+        - TINYGO_ARCH=${TINYGO_ARCH}
+        - TINYGO_VERSION=${TINYGO_VERSION}
+      context: ./.docker
+      dockerfile: Dockerfile
+    depends_on:
+      - openvscode
+    entrypoint: ["./.tasks/init.sh"]
+    volumes:
+      - ./workspace:/home/workspace:cached
+
+  caddy:
+    container_name: caddy
+    image: caddy:2.7.6
+    depends_on:
+      - openvscode
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./certs:/certs:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:
+

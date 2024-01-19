@@ -1,0 +1,4 @@
+server.openvscode.localhost
+tls /certs/openvscode.localhost.crt /certs/openvscode.localhost.key
+log
+reverse_proxy openvscode:3000
