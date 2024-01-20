@@ -4,7 +4,7 @@ services:
     container_name: openvscode
     environment:
       - ABOUT="@k33g"
-    build:
+    build: &build
       args:
         - NODE_DISTRO=${NODE_DISTRO}
         - NODE_VERSION=${NODE_VERSION} 
@@ -14,7 +14,7 @@ services:
         - TINYGO_VERSION=${TINYGO_VERSION}
       context: ./.docker
       dockerfile: Dockerfile
-    volumes:
+    volumes: &volumes
       - ./workspace:/home/workspace:cached
       # important for doing docker in docker
       - type: bind
@@ -25,22 +25,11 @@ services:
 
   openvscode-tasks:
     container_name: openvscode-tasks
-    #image: gitpod/openvscode-server:1.85.1
-    build:
-      args:
-        - NODE_DISTRO=${NODE_DISTRO}
-        - NODE_VERSION=${NODE_VERSION} 
-        - GO_ARCH=${GO_ARCH}
-        - GO_VERSION=${GO_VERSION}
-        - TINYGO_ARCH=${TINYGO_ARCH}
-        - TINYGO_VERSION=${TINYGO_VERSION}
-      context: ./.docker
-      dockerfile: Dockerfile
     depends_on:
       - openvscode
     entrypoint: ["./.tasks/init.sh"]
-    volumes:
-      - ./workspace:/home/workspace:cached
+    build: *build
+    volumes: *volumes
 
   caddy:
     container_name: caddy
