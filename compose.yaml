@@ -1,7 +1,7 @@
 # Simplism
 services:
   openvscode:
-    container_name: openvscode
+    container_name: openvscode-golang
     environment:
       - ABOUT="@k33g"
     build: &build
@@ -24,7 +24,7 @@ services:
       - 3000:3000
 
   openvscode-tasks:
-    container_name: openvscode-tasks
+    container_name: openvscode-golang-tasks
     depends_on:
       - openvscode
     entrypoint: ["./.tasks/init.sh"]
@@ -32,7 +32,7 @@ services:
     volumes: *volumes
 
   caddy:
-    container_name: caddy
+    container_name: caddy-for-openvscode-golang
     image: caddy:2.7.6
     depends_on:
       - openvscode
